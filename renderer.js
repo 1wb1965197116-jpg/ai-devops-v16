@@ -1,9 +1,18 @@
 const fs = require("fs");
 const path = require("path");
+const { pushToGitHub } = require("./github");
 
-function showTab(tab) {
-  document.querySelectorAll(".tab").forEach(t => t.style.display = "none");
-  document.getElementById(tab).style.display = "block";
+let projectPath = "";
+
+function getProjectFolder() {
+  const name = document.getElementById("project").value || "default";
+  projectPath = path.join(__dirname, "projects", name);
+
+  if (!fs.existsSync(projectPath)) {
+    fs.mkdirSync(projectPath, { recursive: true });
+  }
+
+  return projectPath;
 }
 
 function analyze() {
@@ -20,7 +29,7 @@ function analyze() {
   }
 
   document.getElementById("status").innerText =
-    issues.length ? issues.join("\n") : "✅ All good";
+    issues.length ? issues.join("\n") : "✅ Ready";
 }
 
 function fix() {
@@ -38,26 +47,20 @@ function fix() {
 }
 
 function build() {
-  const project = document.getElementById("project").value || "default";
+  const folder = getProjectFolder();
   const mongo = document.getElementById("mongoInput").value;
-  const apiKeys = document.getElementById("apiInput").value;
 
-  const folder = path.join(__dirname, "projects", project);
-
-  if (!fs.existsSync(folder)) {
-    fs.mkdirSync(folder, { recursive: true });
-  }
-
-  // ENV FILE
-  const env = `DATABASE_URL=${mongo}\n${apiKeys}\nNODE_ENV=production`;
-
-  fs.writeFileSync(path.join(folder, ".env"), env);
+  // ENV
+  fs.writeFileSync(
+    path.join(folder, ".env"),
+    `DATABASE_URL=${mongo}\nNODE_ENV=production`
+  );
 
   // Render YAML
   const render = `
 services:
   - type: web
-    name: ${project}-backend
+    name: ${path.basename(folder)}-backend
     env: node
     plan: starter
     envVars:
@@ -67,9 +70,13 @@ services:
 
   fs.writeFileSync(path.join(folder, "render.yaml"), render);
 
-  document.getElementById("renderOutput").innerText = render;
-  document.getElementById("output").innerText =
-    "Project built at:\n" + folder;
+  document.getElementById("status").innerText = "✅ Build Complete";
+}
 
-  document.getElementById("status").innerText = "✅ Build complete";
+async function pushGit() {
+  const folder = getProjectFolder();
+
+  const result = await pushToGitHub(folder);
+
+  document.getElementById("status").innerText = result;
 }
