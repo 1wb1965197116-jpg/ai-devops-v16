@@ -1,48 +1,49 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>AI DevOps Copilot v21</title>
+  <title>AI DevOps Agent v22</title>
 </head>
 
-<body style="margin:0;background:#0d0d0d;color:#fff;font-family:Arial;">
+<body style="background:#0b0b0b;color:#fff;font-family:Arial;">
 
-<!-- HEADER -->
-<div style="padding:15px;background:#111;">
-  <h2>AI DevOps Copilot OS v21</h2>
-</div>
+<h2 style="padding:10px;">AI DevOps Agent v22</h2>
 
-<!-- LAYOUT -->
-<div style="display:flex;height:90vh;">
+<div style="display:flex;">
 
-<!-- LEFT PANEL -->
-<div style="width:35%;padding:15px;border-right:1px solid #333;">
-
-  <input id="project" placeholder="Project name"
-    style="width:100%;padding:8px;"><br><br>
+<!-- LEFT -->
+<div style="width:40%;padding:10px;">
 
   <textarea id="input"
-    placeholder="Paste config or type command..."
-    style="width:100%;height:150px;"></textarea><br><br>
+    placeholder="Paste config OR scan OR speak..."
+    style="width:100%;height:120px;"></textarea><br><br>
 
   <button onclick="analyze()">Analyze</button>
   <button onclick="autoFix()">Auto-Fix</button>
-  <button onclick="generate()">Generate</button>
+
+  <hr>
+
+  <h3>📷 Camera Scan</h3>
+
+  <video id="video" width="100%" autoplay></video><br>
+  <button onclick="startCamera()">Start Camera</button>
+  <button onclick="capture()">Capture → Analyze</button>
 
 </div>
 
-<!-- RIGHT PANEL -->
-<div style="width:65%;padding:15px;">
+<!-- RIGHT -->
+<div style="width:60%;padding:10px;">
 
-  <h3>🧠 Copilot Output</h3>
-  <pre id="output" style="background:#000;padding:10px;height:200px;overflow:auto;"></pre>
+  <h3>🧠 AI Output</h3>
+  <pre id="output" style="background:#000;height:200px;overflow:auto;"></pre>
 
-  <h3>📦 Generated Project</h3>
-  <pre id="generated" style="background:#000;padding:10px;height:200px;overflow:auto;"></pre>
+  <h3>📦 Generated Fix</h3>
+  <pre id="gen" style="background:#000;height:200px;overflow:auto;"></pre>
 
 </div>
 
 </div>
 
 <script src="app.js"></script>
+
 </body>
 </html>
