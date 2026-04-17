@@ -1,28 +1,42 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>AI DevOps SaaS v16</title>
+  <title>AI DevOps Zero-Trust OS v19</title>
 </head>
 
-<body style="font-family:Arial;background:#111;color:#fff;padding:20px;">
+<body style="background:#0f0f0f;color:#fff;font-family:Arial;padding:20px;">
 
-<h2>AI DevOps SaaS</h2>
+<h2>AI DevOps Zero-Trust OS v19</h2>
 
-<input id="email" placeholder="Email"><br><br>
-<input id="password" type="password" placeholder="Password"><br><br>
+<!-- PROJECT -->
+<input id="project" placeholder="Project name (bb-ai-core)" style="width:100%;padding:8px;"><br><br>
 
-<button onclick="register()">Register</button>
-<button onclick="login()">Login</button>
+<!-- COMMAND -->
+<textarea id="commandInput"
+placeholder="Type or speak: build + test supabase + github"
+style="width:100%;height:80px;"></textarea><br><br>
+
+<button onclick="runCommand()">Run Command</button>
+<button onclick="startVoice()">🎤 Voice</button>
 
 <hr>
 
-<input id="project" placeholder="Project name"><br><br>
-<textarea id="mongo" placeholder="Mongo URI"></textarea><br><br>
-<textarea id="api" placeholder="API Keys"></textarea><br><br>
+<!-- TOKENS (memory only, NOT stored) -->
+<h3>Temporary Token Sandbox (RAM only)</h3>
 
-<button onclick="saveProject()">Save Project</button>
+<input id="githubToken" placeholder="GitHub Token"><br><br>
+<input id="supabaseUrl" placeholder="Supabase URL"><br><br>
+<input id="supabaseKey" placeholder="Supabase Key"><br><br>
+<input id="mongoUri" placeholder="Mongo URI"><br><br>
 
-<h3 id="status"></h3>
+<button onclick="loadTokens()">Load to Memory</button>
+<button onclick="testTokens()">Test APIs</button>
+<button onclick="wipeTokens()">🗑 Wipe All</button>
+
+<hr>
+
+<h3>Status Log</h3>
+<pre id="log" style="background:#000;height:250px;overflow:auto;padding:10px;"></pre>
 
 <script src="app.js"></script>
 
