@@ -1,33 +1,67 @@
 const express = require("express");
-const mongoose = require("mongoose");
-const dotenv = require("dotenv");
-
-dotenv.config();
+const path = require("path");
 
 const app = express();
 app.use(express.json());
 app.use(express.static("public"));
 
-// DB CONNECT
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB connected"))
-  .catch(err => console.log(err));
+// AI “mock copilot engine”
+app.post("/analyze", (req, res) => {
+  const input = req.body.input.toLowerCase();
 
-// MODELS
-const User = require("./models/User");
-const Project = require("./models/Project");
+  let result = {
+    issues: [],
+    suggestions: []
+  };
 
-// AUTH ROUTES
-const authRoutes = require("./routes/auth");
-const projectRoutes = require("./routes/projects");
+  if (input.includes("mongodb")) {
+    if (!input.includes("mongodb+srv://")) {
+      result.issues.push("Invalid MongoDB URI");
+      result.suggestions.push("Use mongodb+srv:// format");
+    } else {
+      result.suggestions.push("MongoDB format OK");
+    }
+  }
 
-app.use("/api/auth", authRoutes);
-app.use("/api/projects", projectRoutes);
+  if (input.includes("supabase")) {
+    if (!input.includes("anon")) {
+      result.issues.push("Missing Supabase anon key");
+      result.suggestions.push("Add anon/public key");
+    }
+  }
 
-// HOME
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/public/index.html");
+  if (input.includes("render")) {
+    result.suggestions.push("Render deployment detected");
+  }
+
+  res.json(result);
+});
+
+app.post("/generate", (req, res) => {
+  const name = req.body.name || "app";
+
+  res.json({
+    server:
+`const express = require("express");
+const app = express();
+
+app.get("/", (req,res)=>res.send("${name} running"));
+
+app.listen(process.env.PORT || 3000);`,
+
+    env:
+`DATABASE_URL=your_mongo_here
+NODE_ENV=production`,
+
+    render:
+`services:
+  - type: web
+    name: ${name}
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js`
+  });
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Server running"));
+app.listen(PORT, () => console.log("Running"));
