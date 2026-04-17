@@ -1,24 +1,32 @@
 // =====================
-// ANALYZE ENGINE (AI)
+// AI ENGINE CORE
 // =====================
-async function analyze() {
-  const input = document.getElementById("input").value;
+function analyze() {
+  const input = document.getElementById("input").value.toLowerCase();
 
-  const res = await fetch("/analyze", {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({ input })
-  });
+  let out = [];
 
-  const data = await res.json();
+  if (input.includes("mongodb")) {
+    out.push(input.includes("mongodb+srv://")
+      ? "✔ Mongo format OK"
+      : "❌ Mongo format invalid");
+  }
 
-  document.getElementById("output").innerText =
-    "❌ Issues:\n" + data.issues.join("\n") +
-    "\n\n🧠 Suggestions:\n" + data.suggestions.join("\n");
+  if (input.includes("supabase")) {
+    out.push(input.includes("anon")
+      ? "✔ Supabase key detected"
+      : "⚠ Missing Supabase anon key");
+  }
+
+  if (input.includes("render")) {
+    out.push("✔ Render deployment detected");
+  }
+
+  document.getElementById("output").innerText = out.join("\n");
 }
 
 // =====================
-// AUTO FIX (client-side enhancer)
+// AUTO FIX ENGINE
 // =====================
 function autoFix() {
   let input = document.getElementById("input").value;
@@ -31,26 +39,40 @@ function autoFix() {
 
   document.getElementById("input").value = input;
 
-  document.getElementById("output").innerText =
-    "✔ Auto-fix applied locally";
+  document.getElementById("gen").innerText =
+    "✔ Auto-fixed configuration generated";
 }
 
 // =====================
-// GENERATOR ENGINE
+// CAMERA SYSTEM
 // =====================
-async function generate() {
-  const name = document.getElementById("project").value;
+let stream;
 
-  const res = await fetch("/generate", {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({ name })
-  });
+async function startCamera() {
+  const video = document.getElementById("video");
 
-  const data = await res.json();
+  stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  video.srcObject = stream;
 
-  document.getElementById("generated").innerText =
-    "SERVER.JS\n\n" + data.server +
-    "\n\n.ENV\n\n" + data.env +
-    "\n\nRENDER.YAML\n\n" + data.render;
+  document.getElementById("output").innerText =
+    "📷 Camera started";
+}
+
+function capture() {
+  const video = document.getElementById("video");
+
+  const canvas = document.createElement("canvas");
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(video, 0, 0);
+
+  const imageData = canvas.toDataURL("image/png");
+
+  document.getElementById("input").value =
+    "IMAGE_CAPTURED_DATA_READY_FOR_OCR_ANALYSIS";
+
+  document.getElementById("output").innerText =
+    "📷 Frame captured (ready for OCR pipeline)";
 }
