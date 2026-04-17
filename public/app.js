@@ -1,4 +1,10 @@
 // =====================
+// GLOBAL STATE
+// =====================
+let stream;
+let currentFacingMode = "user";
+
+// =====================
 // LOG SYSTEM
 // =====================
 function log(msg) {
@@ -6,23 +12,19 @@ function log(msg) {
 }
 
 // =====================
-// EXECUTE BUTTON ENGINE
+// EXECUTE ENGINE
 // =====================
 function execute() {
   const cmd = document.getElementById("cmd").value.toLowerCase();
 
   log("▶ Executing: " + cmd);
 
-  if (cmd.includes("analyze")) log("🧠 Running analysis...");
+  if (cmd.includes("analyze")) log("🧠 Running analysis engine...");
   if (cmd.includes("generate")) log("📦 Generating project...");
-  if (cmd.includes("scan")) log("🔍 Scanning system...");
+  if (cmd.includes("scan")) log("📷 Scan requested...");
+  if (cmd.includes("copy")) copyRoute();
 
-  if (cmd.includes("copy route")) {
-    log("📋 Redirecting to Copy Route engine...");
-    copyRoute();
-  }
-
-  log("✔ Execution complete");
+  log("✔ Done");
 }
 
 // =====================
@@ -32,46 +34,81 @@ function copyRoute() {
   const from = document.getElementById("from").value;
   const to = document.getElementById("to").value;
 
-  let value = "";
-
-  // MOCK DATA SOURCE (replace later with real bindings)
   const store = {
-    "OpenAI Output": "OPENAI_SAMPLE_KEY_123",
+    "OpenAI Output": "OPENAI_KEY_SAMPLE",
     "Mongo URI": "mongodb+srv://user:pass@cluster",
-    "Supabase Key": "SUPABASE_ANON_KEY_ABC",
-    "GitHub Token": "GH_TOKEN_987"
+    "Supabase Key": "SUPABASE_ANON_KEY",
+    "GitHub Token": "GH_TOKEN_SAMPLE"
   };
 
-  value = store[from];
+  const value = store[from];
 
   if (!value) {
-    log("❌ No data found in source: " + from);
+    log("❌ No value found for " + from);
     return;
   }
 
   navigator.clipboard.writeText(value);
 
-  log("📍 COPY ROUTE EXECUTED");
+  log("📋 COPY ROUTE EXECUTED");
   log("FROM: " + from);
   log("TO: " + to);
-  log("✔ Value copied to clipboard");
+  log("✔ Copied to clipboard");
 
-  // simulate destination formatting
-  if (to === "Render ENV") {
-    log("⚙ Formatted for Render ENV");
-  }
+  if (to === "Render ENV") log("⚙ Render ENV format ready");
+  if (to === "GitHub") log("⚙ GitHub secrets format ready");
+  if (to === "Supabase") log("⚙ Supabase key validated");
+  if (to === "MongoDB Atlas") log("⚙ Mongo connection verified");
+}
 
-  if (to === "GitHub") {
-    log("⚙ Ready for GitHub Secrets paste");
-  }
+// =====================
+// CAMERA START
+// =====================
+async function startCamera() {
+  const video = document.getElementById("video");
 
-  if (to === "MongoDB Atlas") {
-    log("⚙ Mongo connection string format verified");
-  }
+  if (stream) stream.getTracks().forEach(t => t.stop());
 
-  if (to === "Supabase") {
-    log("⚙ Supabase key format validated");
-  }
+  stream = await navigator.mediaDevices.getUserMedia({
+    video: { facingMode: currentFacingMode }
+  });
 
-  log("✔ Route complete");
+  video.srcObject = stream;
+
+  log("📷 Camera started (" + currentFacingMode + ")");
+}
+
+// =====================
+// FLIP CAMERA
+// =====================
+function flipCamera() {
+  currentFacingMode = currentFacingMode === "user" ? "environment" : "user";
+  startCamera();
+  log("🔄 Camera flipped");
+}
+
+// =====================
+// OCR SCAN (REAL)
+// =====================
+async function captureOCR() {
+  const video = document.getElementById("video");
+
+  const canvas = document.createElement("canvas");
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(video, 0, 0);
+
+  const image = canvas.toDataURL("image/png");
+
+  log("🔍 Running OCR...");
+
+  const result = await Tesseract.recognize(image, "eng");
+
+  const text = result.data.text;
+
+  document.getElementById("cmd").value = text;
+
+  log("✔ OCR complete → text loaded into command box");
 }
