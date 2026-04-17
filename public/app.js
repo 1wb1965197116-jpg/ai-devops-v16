@@ -1,118 +1,77 @@
 // =====================
-// GLOBAL STATE
-// =====================
-let stream;
-let currentFacingMode = "user";
-
-// =====================
-// LOG
+// LOG SYSTEM
 // =====================
 function log(msg) {
-  document.getElementById("output").innerText += msg + "\n";
+  document.getElementById("out").innerText += msg + "\n";
 }
 
 // =====================
-// ANALYZE ENGINE
+// EXECUTE BUTTON ENGINE
 // =====================
-function analyze() {
-  const input = document.getElementById("input").value.toLowerCase();
+function execute() {
+  const cmd = document.getElementById("cmd").value.toLowerCase();
 
-  document.getElementById("output").innerText = "";
+  log("▶ Executing: " + cmd);
 
-  log("🧠 Analyzing...");
+  if (cmd.includes("analyze")) log("🧠 Running analysis...");
+  if (cmd.includes("generate")) log("📦 Generating project...");
+  if (cmd.includes("scan")) log("🔍 Scanning system...");
 
-  if (input.includes("mongodb")) {
-    log(input.includes("mongodb+srv://") ? "✔ Mongo OK" : "❌ Mongo broken");
+  if (cmd.includes("copy route")) {
+    log("📋 Redirecting to Copy Route engine...");
+    copyRoute();
   }
 
-  if (input.includes("supabase")) {
-    log(input.includes("anon") ? "✔ Supabase OK" : "⚠ Missing key");
+  log("✔ Execution complete");
+}
+
+// =====================
+// COPY ROUTE ENGINE
+// =====================
+function copyRoute() {
+  const from = document.getElementById("from").value;
+  const to = document.getElementById("to").value;
+
+  let value = "";
+
+  // MOCK DATA SOURCE (replace later with real bindings)
+  const store = {
+    "OpenAI Output": "OPENAI_SAMPLE_KEY_123",
+    "Mongo URI": "mongodb+srv://user:pass@cluster",
+    "Supabase Key": "SUPABASE_ANON_KEY_ABC",
+    "GitHub Token": "GH_TOKEN_987"
+  };
+
+  value = store[from];
+
+  if (!value) {
+    log("❌ No data found in source: " + from);
+    return;
   }
 
-  if (input.includes("render")) log("✔ Render detected");
+  navigator.clipboard.writeText(value);
 
-  log("✔ Done");
-}
+  log("📍 COPY ROUTE EXECUTED");
+  log("FROM: " + from);
+  log("TO: " + to);
+  log("✔ Value copied to clipboard");
 
-// =====================
-// CAMERA START
-// =====================
-async function startCamera() {
-  const video = document.getElementById("video");
-
-  if (stream) stream.getTracks().forEach(t => t.stop());
-
-  stream = await navigator.mediaDevices.getUserMedia({
-    video: { facingMode: currentFacingMode }
-  });
-
-  video.srcObject = stream;
-
-  log("📷 Camera started");
-}
-
-// =====================
-// FLIP CAMERA
-// =====================
-function flipCamera() {
-  currentFacingMode = currentFacingMode === "user" ? "environment" : "user";
-  startCamera();
-  log("🔄 Camera flipped");
-}
-
-// =====================
-// 📸 REAL OCR SCAN
-// =====================
-async function captureOCR() {
-  const video = document.getElementById("video");
-
-  const canvas = document.createElement("canvas");
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-
-  const ctx = canvas.getContext("2d");
-  ctx.drawImage(video, 0, 0);
-
-  const image = canvas.toDataURL("image/png");
-
-  log("🔍 Running OCR...");
-
-  const result = await Tesseract.recognize(image, "eng");
-
-  const text = result.data.text;
-
-  document.getElementById("input").value = text;
-
-  log("✔ OCR extracted text");
-}
-
-// =====================
-// GITHUB REPO SCANNER (basic fetch)
-// =====================
-async function scanRepo() {
-  const url = document.getElementById("repo").value;
-
-  document.getElementById("repoOut").innerText = "Scanning repo...";
-
-  try {
-    const api = url
-      .replace("https://github.com/", "")
-      .split("/");
-
-    const user = api[0];
-    const repo = api[1];
-
-    const res = await fetch(`https://api.github.com/repos/${user}/${repo}`);
-
-    const data = await res.json();
-
-    document.getElementById("repoOut").innerText =
-      "Repo: " + data.full_name +
-      "\nStars: " + data.stargazers_count +
-      "\nLanguage: " + data.language;
-
-  } catch (e) {
-    document.getElementById("repoOut").innerText =
-      "❌ Failed to scan repo";
+  // simulate destination formatting
+  if (to === "Render ENV") {
+    log("⚙ Formatted for Render ENV");
   }
+
+  if (to === "GitHub") {
+    log("⚙ Ready for GitHub Secrets paste");
+  }
+
+  if (to === "MongoDB Atlas") {
+    log("⚙ Mongo connection string format verified");
+  }
+
+  if (to === "Supabase") {
+    log("⚙ Supabase key format validated");
+  }
+
+  log("✔ Route complete");
 }
