@@ -1,70 +1,57 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>AI DevOps Automation Engine v27</title>
+  <title>AI DevOps Network v30+</title>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 </head>
 
-<body style="margin:0;background:#0b0b0b;color:#fff;font-family:Arial;">
+<body style="background:#0b0b0b;color:#fff;font-family:Arial;">
 
-<h2 style="padding:10px;">AI DevOps Automation Engine v27</h2>
+<h2>AI DevOps Autonomous Network</h2>
 
-<div style="display:flex;height:92vh;">
+<textarea id="cmd" style="width:100%;height:90px;"
+placeholder="Commands: extract mongo / paste github / deploy / scan"></textarea>
 
-<!-- LEFT PANEL -->
-<div style="width:40%;padding:10px;border-right:1px solid #333;">
+<br><br>
 
-  <textarea id="cmd"
-    placeholder="Type command (analyze, scan, copy route, generate)"
-    style="width:100%;height:80px;"></textarea><br><br>
+<button onclick="execute()">▶ Execute</button>
 
-  <button onclick="execute()">▶ Execute</button>
+<hr>
 
-  <hr>
+<h3>📋 Copy Route (REAL)</h3>
 
-  <h3>📋 Copy Route</h3>
+<select id="from">
+  <option>Mongo URI</option>
+  <option>Supabase Key</option>
+  <option>OpenAI Output</option>
+  <option>GitHub Token</option>
+</select>
 
-  <select id="from">
-    <option>OpenAI Output</option>
-    <option>Mongo URI</option>
-    <option>Supabase Key</option>
-    <option>GitHub Token</option>
-  </select>
+<select id="to">
+  <option>GitHub</option>
+  <option>Render ENV</option>
+  <option>Supabase</option>
+  <option>MongoDB Atlas</option>
+</select>
 
-  <br><br>
+<br><br>
 
-  <select id="to">
-    <option>GitHub</option>
-    <option>Render ENV</option>
-    <option>Supabase</option>
-    <option>MongoDB Atlas</option>
-  </select>
+<button onclick="copyRoute()">📍 Run Copy Route</button>
 
-  <br><br>
+<hr>
 
-  <button onclick="copyRoute()">📍 Copy Route Execute</button>
+<h3>📷 Camera OCR</h3>
 
-  <hr>
+<video id="video" autoplay style="width:300px;"></video><br>
 
-  <h3>📷 Camera System</h3>
+<button onclick="startCamera()">Start</button>
+<button onclick="flipCamera()">Flip</button>
+<button onclick="scanOCR()">OCR Scan</button>
 
-  <video id="video" autoplay style="width:100%;border:1px solid #333;"></video><br><br>
+<hr>
 
-  <button onclick="startCamera()">Start Camera</button>
-  <button onclick="flipCamera()">🔄 Flip Camera</button>
-  <button onclick="captureOCR()">📸 OCR Scan</button>
-
-</div>
-
-<!-- RIGHT PANEL -->
-<div style="width:60%;padding:10px;">
-
-  <h3>🧠 Output Log</h3>
-  <pre id="out" style="background:#000;height:90%;overflow:auto;padding:10px;"></pre>
-
-</div>
-
-</div>
+<h3>🧠 Log</h3>
+<pre id="out"></pre>
 
 <script src="app.js"></script>
 </body>
