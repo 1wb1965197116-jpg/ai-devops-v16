@@ -1,35 +1,60 @@
-// =====================
-// AI ENGINE CORE
-// =====================
+// =======================
+// GLOBAL STATE (ZERO TRUST)
+// =======================
+let stream;
+let currentFacingMode = "user";
+
+// =======================
+// LOG SYSTEM
+// =======================
+function log(msg) {
+  document.getElementById("output").innerText += msg + "\n";
+}
+
+// =======================
+// ANALYZE ENGINE
+// =======================
 function analyze() {
   const input = document.getElementById("input").value.toLowerCase();
 
-  let out = [];
+  document.getElementById("output").innerText = "";
+
+  log("🧠 Analyzing input...");
 
   if (input.includes("mongodb")) {
-    out.push(input.includes("mongodb+srv://")
-      ? "✔ Mongo format OK"
-      : "❌ Mongo format invalid");
+    if (input.includes("mongodb+srv://")) {
+      log("✔ MongoDB format OK");
+    } else {
+      log("❌ Invalid MongoDB URI");
+    }
   }
 
   if (input.includes("supabase")) {
-    out.push(input.includes("anon")
-      ? "✔ Supabase key detected"
-      : "⚠ Missing Supabase anon key");
+    if (input.includes("anon") || input.includes("key")) {
+      log("✔ Supabase config detected");
+    } else {
+      log("⚠ Missing Supabase key");
+    }
   }
 
   if (input.includes("render")) {
-    out.push("✔ Render deployment detected");
+    log("✔ Render deployment detected");
   }
 
-  document.getElementById("output").innerText = out.join("\n");
+  if (input.includes("github")) {
+    log("✔ GitHub workflow detected");
+  }
+
+  log("✔ Analysis complete");
 }
 
-// =====================
+// =======================
 // AUTO FIX ENGINE
-// =====================
+// =======================
 function autoFix() {
   let input = document.getElementById("input").value;
+
+  log("🛠 Running auto-fix...");
 
   input = input.replace("<password>", "YOUR_PASSWORD");
 
@@ -39,25 +64,74 @@ function autoFix() {
 
   document.getElementById("input").value = input;
 
-  document.getElementById("gen").innerText =
-    "✔ Auto-fixed configuration generated";
+  log("✔ Auto-fix applied");
 }
 
-// =====================
-// CAMERA SYSTEM
-// =====================
-let stream;
+// =======================
+// PROJECT GENERATOR
+// =======================
+function generate() {
+  const name = document.getElementById("project").value || "app";
 
+  const server =
+`const express = require("express");
+const app = express();
+
+app.get("/", (req,res)=>res.send("${name} running"));
+
+app.listen(process.env.PORT || 3000);`;
+
+  const env =
+`DATABASE_URL=your_mongo_here
+NODE_ENV=production`;
+
+  const render =
+`services:
+  - type: web
+    name: ${name}
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js`;
+
+  document.getElementById("generated").innerText =
+`SERVER.JS\n\n${server}\n\n.ENV\n\n${env}\n\nRENDER.YAML\n\n${render}`;
+
+  log("📦 Project generated");
+}
+
+// =======================
+// CAMERA SYSTEM
+// =======================
 async function startCamera() {
   const video = document.getElementById("video");
 
-  stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  if (stream) {
+    stream.getTracks().forEach(t => t.stop());
+  }
+
+  stream = await navigator.mediaDevices.getUserMedia({
+    video: { facingMode: currentFacingMode }
+  });
+
   video.srcObject = stream;
 
-  document.getElementById("output").innerText =
-    "📷 Camera started";
+  log("📷 Camera started (" + currentFacingMode + ")");
 }
 
+// =======================
+// FLIP CAMERA FIX
+// =======================
+function flipCamera() {
+  currentFacingMode = (currentFacingMode === "user") ? "environment" : "user";
+
+  log("🔄 Switching camera...");
+
+  startCamera();
+}
+
+// =======================
+// CAPTURE FRAME
+// =======================
 function capture() {
   const video = document.getElementById("video");
 
@@ -71,8 +145,7 @@ function capture() {
   const imageData = canvas.toDataURL("image/png");
 
   document.getElementById("input").value =
-    "IMAGE_CAPTURED_DATA_READY_FOR_OCR_ANALYSIS";
+    "IMAGE_FRAME_READY_FOR_OCR_PIPELINE";
 
-  document.getElementById("output").innerText =
-    "📷 Frame captured (ready for OCR pipeline)";
+  log("📸 Frame captured (OCR-ready)");
 }
